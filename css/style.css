@@ -869,3 +869,114 @@ h1, h2, h3 {
     justify-content: center;
   }
 }
+
+/* ============================================
+   Final reliability + accessibility refinements
+   ============================================ */
+
+/* Keep delayed content truly hidden until its reveal class is added.
+   This prevents early flashes and accidental keyboard focus. */
+.continue-wrap {
+  visibility: hidden;
+}
+
+.continue-wrap.show {
+  visibility: visible;
+}
+
+/* Prevent invisible animated content from intercepting interactions. */
+.opening-message,
+.letter-text,
+.stage-message,
+.happy-message,
+.proposal-question,
+.result-message {
+  pointer-events: none;
+}
+
+.opening-message.show,
+.letter-text.visible,
+.stage-message.show,
+.happy-message.show,
+.proposal-question.show,
+.result-message.show {
+  pointer-events: auto;
+}
+
+/* More reliable tap targets and long-text wrapping on narrow screens. */
+button,
+.btn {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.card,
+.admin-card,
+.page-content,
+.response-item {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Respect device safe areas on phones with notches/home indicators. */
+.page {
+  padding:
+    max(2rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+}
+
+.music-toggle {
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  right: max(1.25rem, env(safe-area-inset-right));
+}
+
+/* Keep the layout comfortable on very small screens. */
+@media (max-width: 360px) {
+  .card,
+  .admin-card {
+    padding: 1.35rem 1rem;
+  }
+
+  .btn {
+    max-width: 100%;
+    padding: 0.8rem 1.4rem;
+    font-size: 1rem;
+  }
+
+  .happy-stage {
+    height: 280px;
+  }
+
+  .character-wrap {
+    width: 135px;
+    height: 155px;
+  }
+}
+
+/* Avoid motion and transitions when the user requests reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .floating-heart,
+  .ambient-heart,
+  .character-svg .blink,
+  .character-svg .breathe,
+  .mic-indicator.live,
+  .loading-indicator .spinner {
+    animation: none !important;
+  }
+
+  .continue-wrap,
+  .opening-message,
+  .letter-text,
+  .stage-message,
+  .happy-message,
+  .proposal-question,
+  .result-message {
+    transition: none !important;
+  }
+}
