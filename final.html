@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="A question from the heart." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>A Question ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <!-- Supabase JS (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <div class="particles-bg" aria-hidden="true"></div>
+  <div id="celebration-hearts" class="celebration-hearts" aria-hidden="true"></div>
+
+  <main class="page" id="final-page">
+    <div class="page-content">
+      <div class="card">
+        <h1 id="proposal-question" class="proposal-question"></h1>
+
+        <div id="choices" class="choices">
+          <button type="button" id="btn-yes" class="btn btn-yes">
+            YES ❤️
+          </button>
+          <button type="button" id="btn-no" class="btn btn-no">
+            NO 💔
+          </button>
+        </div>
+
+        <div id="submit-loading" class="loading-indicator" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Saving your answer…</span>
+        </div>
+
+        <p id="submit-error" class="error-msg" hidden role="alert"></p>
+        <div id="retry-area" hidden></div>
+
+        <div id="result-area" hidden></div>
+      </div>
+    </div>
+  </main>
+
+  <button type="button" id="music-toggle" class="music-toggle" style="display:none" aria-pressed="false" aria-label="Play background music">♪</button>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/final.js"></script>
+</body>
+</html>

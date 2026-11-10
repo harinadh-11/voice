@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="A special moment — shout to make magic." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>My Heart 💛</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <!-- Supabase JS (pinned) — used ONLY if the visitor chooses "Save Recording" -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <style>
+    /* ===== Optional voice recording UI (scoped; shared stylesheet untouched) ===== */
+    .rec-notice {
+      max-width: 420px; margin: 0.6rem auto 0; padding: 0.6rem 0.9rem; border-radius: 12px;
+      font-size: 0.9rem; color: var(--burgundy); background: rgba(245, 230, 200, 0.75);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+    .rec-notice[hidden] { display: none; }
+
+    .rec-review {
+      position: relative; z-index: 30; max-width: 420px; margin: 0 auto 1.25rem; padding: 1.1rem 1.1rem 1rem;
+      text-align: center; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(212, 175, 55, 0.5);
+      border-radius: var(--radius); box-shadow: var(--shadow-soft);
+    }
+    .rec-review[hidden] { display: none; }
+    .rec-review h2 { font-family: var(--font-serif); font-size: 1.15rem; color: var(--burgundy); margin: 0 0 0.25rem; }
+    .rec-meta { margin: 0 0 0.35rem; color: var(--text-soft); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+    .rec-status { margin: 0.6rem 0 0; font-size: 0.9rem; color: var(--burgundy); min-height: 1.3em; }
+    .rec-status.error { color: #a33; }
+    .rec-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 0.7rem; }
+    .rec-actions .btn { min-width: 8.5rem; }
+    .rec-actions[hidden], .rec-actions .btn[hidden] { display: none; }
+
+    .rec-overlay {
+      position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+      padding: 1rem; background: rgba(74, 44, 42, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .rec-overlay[hidden] { display: none; }
+    .rec-dialog {
+      width: min(460px, 100%); max-height: calc(100dvh - 2rem); overflow: auto; padding: 1.4rem 1.3rem 1.2rem;
+      background: var(--cream); border: 2px solid var(--gold); border-radius: var(--radius);
+      box-shadow: var(--shadow-soft), var(--shadow-gold); color: var(--text-dark);
+    }
+    .rec-dialog:focus { outline: none; }
+    .rec-dialog h2 { font-family: var(--font-serif); color: var(--burgundy); font-size: 1.35rem; margin: 0 0 0.6rem; }
+    .rec-dialog p, .rec-dialog li { font-size: 0.95rem; line-height: 1.5; color: var(--text-soft); }
+    .rec-dialog ul { margin: 0.4rem 0 0.9rem; padding-left: 1.2rem; }
+    .rec-dialog li { margin-bottom: 0.3rem; }
+    .rec-agree { display: flex; gap: 0.6rem; align-items: flex-start; margin: 0.7rem 0 1rem; font-weight: 600; color: var(--text-dark); cursor: pointer; }
+    .rec-agree input { width: 1.2rem; height: 1.2rem; margin-top: 0.15rem; accent-color: var(--burgundy); flex: none; }
+    .rec-dialog-actions { display: flex; flex-direction: column; gap: 0.55rem; }
+    .rec-dialog-actions .btn { width: 100%; }
+    .rec-link-btn { background: none; border: 0; padding: 0.4rem; color: var(--text-soft); text-decoration: underline; cursor: pointer; font: inherit; }
+    .rec-link-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <div class="particles-bg" aria-hidden="true"></div>
+  <div id="happy-bg-glow" class="happy-bg-glow" aria-hidden="true"></div>
+  <div id="heart-explosion" class="heart-explosion" aria-hidden="true"></div>
+  <div id="ambient-hearts" class="ambient-hearts" aria-hidden="true"></div>
+
+  <main class="page" id="happy-page">
+    <div class="page-content">
+      <!-- Voice controls (permission only after click) -->
+      <div id="voice-panel" class="voice-panel">
+        <p id="voice-hint" class="voice-hint">
+          When you’re ready, turn on the mic and <strong>shout loudly</strong> to wake the magic 💛
+        </p>
+
+        <div class="voice-controls">
+          <button type="button" id="start-mic-btn" class="btn btn-primary">
+            Start voice magic 🎤
+          </button>
+          <button type="button" id="stop-mic-btn" class="btn btn-secondary" hidden>
+            Stop microphone
+          </button>
+        </div>
+
+        <div id="mic-status" class="mic-status" hidden>
+          <span id="mic-indicator" class="mic-indicator" aria-hidden="true"></span>
+          <span id="mic-status-text">Listening…</span>
+        </div>
+
+        <div id="level-meter-wrap" class="level-meter-wrap" hidden>
+          <div class="level-meter" role="meter" aria-label="Sound level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="level-meter">
+            <div id="level-fill" class="level-fill"></div>
+            <div id="level-threshold" class="level-threshold" title="Shout threshold — fill must stay above this"></div>
+          </div>
+        </div>
+
+        <p id="mic-error" class="error-msg" hidden role="alert"></p>
+        <p id="rec-notice" class="rec-notice" hidden role="status" aria-live="polite"></p>
+        <p id="stage-progress" class="stage-progress" hidden aria-live="polite"></p>
+      </div>
+
+      <div class="happy-stage">
+        <div id="character-wrap" class="character-wrap" aria-hidden="true">
+          <!-- Cute cartoon character — expression stages driven by CSS classes stage-0 … stage-4 -->
+          <svg id="character-svg" class="character-svg stage-0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cute character, calm">
+            <g class="breathe">
+              <!-- Soft body -->
+              <ellipse cx="100" cy="175" rx="48" ry="38" fill="#ffd8c2" stroke="#e8a0b0" stroke-width="2"/>
+              <!-- Head -->
+              <circle cx="100" cy="95" r="62" fill="#ffe8d6" stroke="#e8a0b0" stroke-width="2.5"/>
+              <!-- Ears -->
+              <ellipse cx="48" cy="55" rx="18" ry="24" fill="#ffd8c2" stroke="#e8a0b0" stroke-width="2" transform="rotate(-20 48 55)"/>
+              <ellipse cx="152" cy="55" rx="18" ry="24" fill="#ffd8c2" stroke="#e8a0b0" stroke-width="2" transform="rotate(20 152 55)"/>
+              <ellipse cx="50" cy="58" rx="10" ry="14" fill="#f8c8d4" transform="rotate(-20 50 58)"/>
+              <ellipse cx="150" cy="58" rx="10" ry="14" fill="#f8c8d4" transform="rotate(20 150 58)"/>
+              <!-- Blush cheeks (grow with intensity) -->
+              <ellipse class="cheek cheek-left" cx="58" cy="108" rx="14" ry="9" fill="#f8c8d4" opacity="0.55"/>
+              <ellipse class="cheek cheek-right" cx="142" cy="108" rx="14" ry="9" fill="#f8c8d4" opacity="0.55"/>
+              <!-- Eyebrows (raise with stage intensity via CSS) -->
+              <path class="brow brow-left" d="M62 68 Q75 62 88 68" fill="none" stroke="#4a2c2a" stroke-width="2.5" stroke-linecap="round"/>
+              <path class="brow brow-right" d="M112 68 Q125 62 138 68" fill="none" stroke="#4a2c2a" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Excitement sparkles (visible at higher stages) -->
+              <g class="excitement-marks" opacity="0">
+                <path d="M42 78 l3 6 6 2 -6 2 -3 6 -3 -6 -6 -2 6 -2 z" fill="#f0d878"/>
+                <path d="M158 78 l3 6 6 2 -6 2 -3 6 -3 -6 -6 -2 6 -2 z" fill="#f0d878"/>
+              </g>
+              <!-- Eyes -->
+              <g class="blink">
+                <ellipse class="eye eye-left" cx="75" cy="88" rx="11" ry="14" fill="#4a2c2a"/>
+                <ellipse class="eye eye-right" cx="125" cy="88" rx="11" ry="14" fill="#4a2c2a"/>
+                <circle class="hl" cx="79" cy="83" r="4" fill="#fff"/>
+                <circle class="hl" cx="129" cy="83" r="4" fill="#fff"/>
+                <circle class="hl2" cx="72" cy="92" r="2" fill="#fff" opacity="0.7"/>
+                <circle class="hl2" cx="122" cy="92" r="2" fill="#fff" opacity="0.7"/>
+              </g>
+              <!-- Nose -->
+              <ellipse cx="100" cy="105" rx="7" ry="5" fill="#e8a0b0"/>
+
+              <!-- Mouth stages (only one visible per stage via CSS) -->
+              <!-- Stage 0: calm smile -->
+              <path class="mouth mouth-0" d="M88 122 Q100 130 112 122" fill="none" stroke="#8b3a4a" stroke-width="3" stroke-linecap="round"/>
+              <!-- Stage 1: slightly open -->
+              <ellipse class="mouth mouth-1" cx="100" cy="126" rx="10" ry="7" fill="#8b3a4a"/>
+              <!-- Stage 2: open -->
+              <ellipse class="mouth mouth-2" cx="100" cy="128" rx="14" ry="11" fill="#8b3a4a"/>
+              <ellipse class="mouth mouth-2-inner" cx="100" cy="131" rx="8" ry="5" fill="#c45c7a"/>
+              <!-- Stage 3: wide shout -->
+              <ellipse class="mouth mouth-3" cx="100" cy="130" rx="18" ry="15" fill="#8b3a4a"/>
+              <ellipse class="mouth mouth-3-inner" cx="100" cy="134" rx="11" ry="8" fill="#c45c7a"/>
+              <!-- Stage 4: max shout -->
+              <ellipse class="mouth mouth-4" cx="100" cy="132" rx="22" ry="18" fill="#8b3a4a"/>
+              <ellipse class="mouth mouth-4-inner" cx="100" cy="137" rx="13" ry="10" fill="#c45c7a"/>
+
+              <!-- Soft hair tuft -->
+              <path d="M70 42 Q100 18 130 42" fill="none" stroke="#e8a0b0" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="100" cy="38" r="6" fill="#f8c8d4"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <p id="stage-message" class="stage-message" role="status" aria-live="polite"></p>
+      <p id="happy-message" class="happy-message" role="status"></p>
+
+      <!-- Appears only after a recording exists. Nothing is uploaded unless "Save Recording" is pressed. -->
+      <section id="rec-review" class="rec-review" hidden aria-labelledby="rec-review-title">
+        <h2 id="rec-review-title">Your voice recording 🎙️</h2>
+        <p id="rec-meta" class="rec-meta"></p>
+        <p id="rec-status" class="rec-status" role="status" aria-live="polite"></p>
+        <div id="rec-actions" class="rec-actions">
+          <button type="button" id="rec-play-btn" class="btn btn-secondary">▶ Play</button>
+          <button type="button" id="rec-save-btn" class="btn btn-primary">Save Recording</button>
+          <button type="button" id="rec-discard-btn" class="btn btn-secondary">Discard</button>
+          <button type="button" id="rec-close-btn" class="btn btn-secondary" hidden>Close</button>
+        </div>
+      </section>
+
+      <div id="next-wrap" class="next-wrap">
+        <button type="button" id="next-btn" class="btn btn-primary">
+          Next 💛
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Recording consent (shown when the visitor presses "Start voice magic"; nothing records before they agree) -->
+  <div id="consent-overlay" class="rec-overlay" hidden>
+    <div id="consent-dialog" class="rec-dialog" role="dialog" aria-modal="true"
+         aria-labelledby="consent-title" aria-describedby="consent-desc" tabindex="-1">
+      <h2 id="consent-title">A little voice challenge! 🎤</h2>
+      <div id="consent-desc">
+        <ul>
+          <li><strong>Are you ready to shout?</strong> Get ready for a fun five-level voice challenge!</li>
+          <li><strong>You can ask your friends to help!</strong> Make sure to drink water.</li>
+          <li><strong>How long can you shout?</strong> Try short, loud bursts. Take breaks and stop if your throat feels uncomfortable.</li>
+          <li><strong>Are you ready for this?</strong> Let's see how far you can go!</li>
+        </ul>
+      </div>
+      <label class="rec-agree" for="consent-check">
+        <input type="checkbox" id="consent-check" />
+        <span>Let's do it! ❤️</span>
+      </label>
+      <div class="rec-dialog-actions">
+        <button type="button" id="consent-start-btn" class="btn btn-primary" disabled>Start 🎙️</button>
+        <button type="button" id="consent-skip-btn" class="btn btn-secondary">Are you ready?</button>
+        <button type="button" id="consent-cancel-btn" class="rec-link-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" id="music-toggle" class="music-toggle" style="display:none" aria-pressed="false" aria-label="Play background music">♪</button>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/happy.js"></script>
+</body>
+</html>

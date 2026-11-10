@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="A private romantic message for someone special." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>For You ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+  <div class="particles-bg" aria-hidden="true"></div>
+
+  <main class="page" id="letter-page">
+    <div class="page-content">
+      <div class="card">
+        <p id="opening-message" class="opening-message" role="status"></p>
+        <div class="letter-container">
+          <p id="letter-text" class="letter-text" aria-live="polite"></p>
+        </div>
+        <div id="continue-wrap" class="continue-wrap">
+          <button type="button" id="continue-btn" class="btn btn-primary">
+            Continue ✨
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <button type="button" id="music-toggle" class="music-toggle" style="display:none" aria-pressed="false" aria-label="Play background music">♪</button>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/letters.js"></script>
+</body>
+</html>

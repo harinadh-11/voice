@@ -1,0 +1,23 @@
+# Secrets & local env
+.env
+.env.*
+*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs & deps (none required, but safe)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Optional local audio you may not want in public repos
+# Uncomment if needed:
+# assets/*.mp3
+# assets/*.ogg
+# assets/*.wav

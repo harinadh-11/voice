@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Private response dashboard." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — Proposal Responses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    /* Voice recordings section (scoped; shared stylesheet untouched) */
+    .rec-admin { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid rgba(212, 175, 55, 0.4); }
+    .rec-admin h2 { font-family: var(--font-serif); color: var(--burgundy); font-size: 1.25rem; margin: 0 0 0.25rem; }
+    .recording-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
+    .recording-item { padding: 0.75rem 0.9rem; border-radius: 12px; background: var(--cream); border-left: 4px solid var(--gold); }
+    .recording-head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; align-items: baseline; justify-content: space-between; }
+    .recording-when { font-weight: 600; color: var(--burgundy); }
+    .recording-meta { font-size: 0.85rem; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+    .recording-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.55rem; }
+    .recording-actions .btn { padding: 0.45rem 1rem; font-size: 0.9rem; }
+    .recording-item audio { display: block; width: 100%; margin-top: 0.6rem; }
+    .recording-item audio[hidden] { display: none; }
+    .recording-err { margin: 0.5rem 0 0; font-size: 0.88rem; color: #a33; }
+    .recording-err:empty { display: none; }
+  </style>
+</head>
+<body>
+  <div class="particles-bg" aria-hidden="true"></div>
+
+  <main class="admin-page">
+    <p id="config-error" class="error-msg" hidden role="alert"></p>
+
+    <!-- Login -->
+    <div id="login-card" class="admin-card" hidden>
+      <h1>Admin sign in</h1>
+      <p class="subtitle">Only the authenticated administrator can view responses.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="admin-email-input">Email</label>
+          <input type="email" id="admin-email-input" name="email" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="admin-password-input">Password</label>
+          <input type="password" id="admin-password-input" name="password" required autocomplete="current-password" />
+        </div>
+        <p id="login-error" class="error-msg" hidden role="alert"></p>
+        <button type="submit" id="login-btn" class="btn btn-primary">Sign in</button>
+      </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-card" class="admin-card" hidden>
+      <h1>Proposal responses</h1>
+      <p class="subtitle">
+        Signed in as <strong id="admin-email">—</strong>
+      </p>
+
+      <div class="admin-actions">
+        <button type="button" id="refresh-btn" class="btn btn-secondary">Refresh</button>
+        <button type="button" id="logout-btn" class="btn btn-secondary">Log out</button>
+      </div>
+
+      <div id="responses-loading" class="loading-indicator" hidden style="margin-top:1.5rem">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Loading responses…</span>
+      </div>
+      <p id="responses-error" class="error-msg" hidden role="alert"></p>
+      <p id="empty-state" class="empty-state" hidden>No responses yet.</p>
+      <ul id="response-list" class="response-list" aria-live="polite"></ul>
+
+      <!-- Voice recordings: visible only inside the signed-in dashboard; files come from a PRIVATE bucket -->
+      <section class="rec-admin" aria-labelledby="rec-admin-title">
+        <h2 id="rec-admin-title">Voice recordings 🎙️</h2>
+        <p class="subtitle">
+          Private. Only the allow-listed administrator can play or download these.
+          Play/download links are temporary and expire within minutes.
+        </p>
+        <div id="recordings-loading" class="loading-indicator" hidden style="margin-top:1rem">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Loading recordings…</span>
+        </div>
+        <p id="recordings-error" class="error-msg" hidden role="alert"></p>
+        <p id="recordings-empty" class="empty-state" hidden>No recordings yet.</p>
+        <ul id="recordings-list" class="recording-list" aria-live="polite"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
